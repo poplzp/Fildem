@@ -189,6 +189,8 @@ class CommandWindow(Gtk.ApplicationWindow):
 		self.destroy_menus()
 		if len(menus) == 0:
 			return
+		if len(menus[0].path) == 0:
+			return
 		current_prefix = menus[0].path[0]
 		current_menu = []
 		for item in menus:

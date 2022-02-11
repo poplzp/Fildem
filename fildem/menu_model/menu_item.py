@@ -68,3 +68,12 @@ class DbusAppMenuItem(object):
 			# The last one should be on caps?
 			ret += '<' + v + '>' if (i != len(shortcut) - 1) else v
 		return ret
+
+	def update_props(self, props):
+		if 'children-display' in props:
+			return
+		self.enabled = props.get('enabled', self.enabled)
+		self.label = props.get('label', self.label)
+		self.toggle_state = bool(props.get('toggle-state', self.toggle_state))
+		self.toggle_type = props.get('toggle-type', self.toggle_type)
+		self.visible = props.get('visible', self.visible)

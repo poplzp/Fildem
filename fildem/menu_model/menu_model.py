@@ -207,8 +207,8 @@ class DbusAppMenu(object):
 
 	def get_results(self):
 		if self.interface:
-			self.results = self.interface.GetLayout(0, -1, dbus.Array(signature="s"))
 			try:
+				self.results = self.interface.GetLayout(0, -1, dbus.Array(signature="s"))
 				self.collect_entries(self.results[1])
 			except Exception:
 				pass

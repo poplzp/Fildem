@@ -186,11 +186,14 @@ class CommandWindow(Gtk.ApplicationWindow):
 				break
 
 	def set_menu(self, menus):
+		try:
+			self.set_menu_main(menus)
+		except:
+			print(f"192:set menu error: {len(menus)}")
+			return
+
+	def set_menu_main(self, menus):
 		self.destroy_menus()
-		if len(menus) == 0:
-			return
-		if len(menus[0].path) == 0:
-			return
 		current_prefix = menus[0].path[0]
 		current_menu = []
 		for item in menus:

@@ -81,6 +81,8 @@ class DbusMenu:
 
 	def _start_app(self, menu_activated: str):
 		if self.app is None:
+			self._menu_model = MenuModel(self.session, self.window)
+			self._update_menus()
 			self.app = GlobalMenu(self, menu_activated, self._width_offset)
 			self.app.connect('shutdown', self.on_app_shutdown)
 			self.app.run()

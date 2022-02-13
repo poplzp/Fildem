@@ -54,10 +54,6 @@ class DbusGtkMenu(object):
 			except Exception:
 				continue
 
-			s = interface.connect_to_signal('Changed', self.on_actions_changed)
-			self.signal_matcher.append(s)
-			self.connect_to_actions_iface(object)
-
 			for menu in results:
 				self.results[(menu[0], menu[1])] = menu[2]
 
@@ -122,34 +118,6 @@ class DbusGtkMenu(object):
 		checked = description[2]
 		return enabled, checked
 
-	def connect_to_actions_iface(self, object):
-		try:
-			iface = dbus.Interface(object, dbus_interface='org.gtk.Actions')
-			s = iface.connect_to_signal('Changed', self.on_gtk_actions_changed)
-			self.signal_matcher.append(s)
-		except Exception as e:
-			pass
-
-	def on_actions_changed(self, *args):
-		print(f'on_actions_changed {args=}')
-
-	def on_gtk_actions_changed(self, removed_actions, enabled_changed, state_changed, new_actions):
-		"""
-		The name of the actions doesn't have the unity. app. or win. preprended
-		"""
-		for action_name in enabled_changed:
-			item = filter(lambda it: it.action.endswith(action_name), self.items)
-			item = next(item, None)
-			if item is not None:
-				item.set_enabled(enabled_changed[action_name])
-			# item.set_description(self.describe(item.action))
-
-		for action_name in state_changed:
-			item = filter(lambda it: it.action.endswith(action_name), self.items)
-			item = next(item, None)
-			if item is not None:
-				item.set_description(self.describe(item.action))
-
 	def remove_actions_listener(self):
 		for s in self.signal_matcher:
 			s.remove()
@@ -197,9 +165,6 @@ class DbusAppMenu(object):
 			object     = self.session.get_object(name, path)
 			interface  = dbus.Interface(object, 'com.canonical.dbusmenu')
 
-			s = interface.connect_to_signal('ItemsPropertiesUpdated', self.on_actions_changed)
-			self.signal_matcher.append(s)
-
 			return interface
 		except dbus.exceptions.DBusException:
 			# import traceback; traceback.print_exc()
@@ -246,19 +211,6 @@ class DbusAppMenu(object):
 			self.actions[menu_item.text] = menu_item.action
 			self.items.append(menu_item)
 
-	def on_actions_changed(self, updated, removed):
-		for upd in updated:
-			action_number = int(upd[0])
-			item = filter(lambda x: x.action == action_number, self.items)
-			item = next(item, None)
-			print(f'{item.label if item is not None else None}, ', end='')
-			if item is not None:
-				item.update_props(upd[1])
-			else:
-				print("upd not found ", upd)
-
-		print(f'\n279:{removed=}')
-
 	def remove_actions_listener(self):
 		for s in self.signal_matcher:
 			s.remove()
@@ -277,6 +229,7 @@ class MenuModel:
 		self.gtkmenu = DbusGtkMenu(session, window)
 
 	def _update_menus(self):
+		print("281: update menus")
 		self.gtkmenu.get_results()
 		if not len(self.gtkmenu.items):
 			self.appmenu.get_results()
